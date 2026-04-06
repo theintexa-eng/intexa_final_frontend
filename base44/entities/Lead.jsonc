@@ -1,0 +1,88 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Full name of the lead"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "city": {
+      "type": "string",
+      "description": "City of the lead"
+    },
+    "property_type": {
+      "type": "string",
+      "enum": [
+        "apartment",
+        "villa",
+        "penthouse",
+        "office",
+        "retail",
+        "restaurant",
+        "hotel",
+        "clinic",
+        "other"
+      ],
+      "description": "Type of property"
+    },
+    "budget": {
+      "type": "string",
+      "enum": [
+        "under_10L",
+        "10L_20L",
+        "20L_35L",
+        "35L_50L",
+        "above_50L"
+      ],
+      "description": "Budget range"
+    },
+    "timeline": {
+      "type": "string",
+      "enum": [
+        "immediate",
+        "1_3_months",
+        "3_6_months",
+        "6_months_plus"
+      ],
+      "description": "Project timeline"
+    },
+    "service_interest": {
+      "type": "string",
+      "enum": [
+        "studio_matching",
+        "boq_audit",
+        "general_inquiry"
+      ],
+      "description": "Service interested in"
+    },
+    "message": {
+      "type": "string",
+      "description": "Additional message or notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "qualified",
+        "converted",
+        "lost"
+      ],
+      "default": "new",
+      "description": "Lead status"
+    }
+  },
+  "required": [
+    "name",
+    "phone",
+    "email"
+  ]
+}

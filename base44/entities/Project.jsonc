@@ -1,0 +1,113 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Project title"
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-friendly unique identifier"
+    },
+    "property_type": {
+      "type": "string",
+      "enum": [
+        "apartment",
+        "villa",
+        "penthouse",
+        "office",
+        "retail",
+        "restaurant",
+        "hotel",
+        "clinic"
+      ],
+      "description": "Type of property"
+    },
+    "style": {
+      "type": "string",
+      "enum": [
+        "modern",
+        "contemporary",
+        "traditional",
+        "minimalist",
+        "industrial",
+        "luxury",
+        "eclectic"
+      ],
+      "description": "Design style"
+    },
+    "city": {
+      "type": "string",
+      "description": "City where the project is located"
+    },
+    "area_sqft": {
+      "type": "number",
+      "description": "Project area in sq ft"
+    },
+    "budget_utilized": {
+      "type": "string",
+      "description": "Budget range actually utilized e.g. \u20b928 Lakhs"
+    },
+    "partner_studio": {
+      "type": "string",
+      "description": "Name of the partner brand/studio that executed this"
+    },
+    "partner_specialization": {
+      "type": "string",
+      "description": "Studio's specialization description"
+    },
+    "partner_city": {
+      "type": "string",
+      "description": "City where the studio is based"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "URL of the cover/hero image"
+    },
+    "before_image": {
+      "type": "string",
+      "description": "URL of the before image"
+    },
+    "after_image": {
+      "type": "string",
+      "description": "URL of the after image"
+    },
+    "gallery_images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional gallery image URLs"
+    },
+    "brief": {
+      "type": "string",
+      "description": "Short project brief \u2014 what the client wanted"
+    },
+    "transformation": {
+      "type": "string",
+      "description": "Description of the transformation delivered"
+    },
+    "client_quote": {
+      "type": "string",
+      "description": "A short testimonial from the client"
+    },
+    "duration_weeks": {
+      "type": "number",
+      "description": "How long the project took in weeks"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a featured project"
+    }
+  },
+  "required": [
+    "title",
+    "slug",
+    "property_type",
+    "style",
+    "cover_image",
+    "partner_studio"
+  ]
+}
