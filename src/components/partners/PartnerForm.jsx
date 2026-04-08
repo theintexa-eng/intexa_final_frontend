@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
@@ -34,6 +35,16 @@ function ProgressBar({ step }) {
           style={{ width: `${step === 0 ? 5 : (step / (STEPS.length - 1)) * 100}%` }}
         />
       </div>
+    </div>
+  );
+}
+
+function Field({ label, error, children }) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-sm">{label}</Label>
+      {children}
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }
@@ -148,14 +159,6 @@ export default function PartnerForm() {
       </div>
     );
   }
-
-  const Field = ({ label, error, children }) => (
-    <div className="space-y-1.5">
-      <Label className="text-sm">{label}</Label>
-      {children}
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
-  );
 
   return (
     <div>
