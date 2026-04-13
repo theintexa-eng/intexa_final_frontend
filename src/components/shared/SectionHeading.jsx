@@ -1,6 +1,15 @@
 import React from 'react';
 
-export default function SectionHeading({ label, title, description, center = true, light = false }) {
+/**
+ * @param {{
+ *   label?: string,
+ *   title: string,
+ *   description?: string,
+ *   center?: boolean,
+ *   light?: boolean
+ * }} props
+ */
+export default function SectionHeading({ label = '', title = '', description = '', center = true, light = false }) {
   return (
     <div className={`max-w-2xl ${center ? 'mx-auto text-center' : ''} mb-12`}>
       {label && (

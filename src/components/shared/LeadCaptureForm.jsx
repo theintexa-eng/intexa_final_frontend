@@ -19,18 +19,18 @@ const propertyOptions = [
 ];
 
 const budgetOptions = [
-  ['under_10L', 'Under ₹10 Lakhs'],
-  ['10L_20L', '₹10L – ₹20 Lakhs'],
-  ['20L_30L', '₹20L – ₹30 Lakhs'],
-  ['30L_40L', '₹30L – ₹40 Lakhs'],
-  ['40L_50L', '₹40L – ₹50 Lakhs'],
-  ['above_50L', 'Above ₹50 Lakhs'],
+  ['under_10L', 'Under 10 Lakhs'],
+  ['10L_20L', '10 - 20 Lakhs'],
+  ['20L_30L', '20 - 30 Lakhs'],
+  ['30L_40L', '30 - 40 Lakhs'],
+  ['40L_50L', '40 - 50 Lakhs'],
+  ['above_50L', 'Above 50 Lakhs'],
 ];
 
 const timelineOptions = [
   ['immediate', 'Immediately'],
   ['within_a_month', 'Within a Month'],
-  ['1_3_months', '1–3 Months'],
+  ['1_3_months', '1-3 Months'],
   ['3_months_plus', '3+ Months'],
 ];
 
@@ -95,12 +95,22 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
   });
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
+  const [startingInquiry, setStartingInquiry] = useState(false);
+  const [updatingInquiryStep2, setUpdatingInquiryStep2] = useState(false);
+  const [inquiryId, setInquiryId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const set = (k, v) => {
     setForm(prev => ({ ...prev, [k]: v }));
     setErrors(prev => ({ ...prev, [k]: undefined }));
+    if (apiError) setApiError('');
+
+    // If contact details change after inquiry start, force regeneration of inquiry id.
+    if (inquiryId && ['name', 'phone', 'email', 'city'].includes(k)) {
+      setInquiryId('');
+    }
   };
 
   const validateStep = () => {
@@ -124,14 +134,101 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
     return Object.keys(errs).length === 0;
   };
 
-  const next = () => { if (validateStep()) setStep(s => s + 1); };
+  const getOptionLabel = (options, value) => options.find(([v]) => v === value)?.[1] || '';
+
+  const next = async () => {
+    if (!validateStep()) return;
+
+    if (step === 0) {
+      if (inquiryId) {
+        setStep(1);
+        return;
+      }
+
+      setStartingInquiry(true);
+      setApiError('');
+
+      try {
+        const startResult = await base44.inquiry.start({
+          name: form.name.trim(),
+          phone: form.phone.replace(/\D/g, ''),
+          email: form.email.trim(),
+          city: form.city.trim(),
+        });
+
+        if (!startResult.success || !startResult.inquiryId) {
+          throw new Error(startResult.message || 'Failed to start inquiry. Please try again.');
+        }
+
+        setInquiryId(startResult.inquiryId);
+        setStep(1);
+      } catch (error) {
+        setApiError(error instanceof Error ? error.message : 'Failed to start inquiry. Please try again.');
+      } finally {
+        setStartingInquiry(false);
+      }
+
+      return;
+    }
+
+    if (step === 1) {
+      if (!inquiryId) {
+        setApiError('Session expired. Please go back to step 1 and try again.');
+        return;
+      }
+
+      setUpdatingInquiryStep2(true);
+      setApiError('');
+
+      try {
+        const payload = {
+          propertyType: getOptionLabel(propertyOptions, form.property_type),
+          budget: getOptionLabel(budgetOptions, form.budget),
+          timeline: getOptionLabel(timelineOptions, form.timeline),
+          message: form.message?.trim() || '',
+        };
+
+        console.log('[FORM Step2] Inquiry ID:', inquiryId);
+        console.log('[FORM Step2] Payload:', payload);
+
+        const step2Result = await base44.inquiry.step2(inquiryId, payload);
+
+        if (!step2Result.success) {
+          throw new Error(step2Result.message || 'Failed to update inquiry. Please try again.');
+        }
+      } catch (error) {
+        console.error('[FORM Step2] Error:', error);
+        setApiError(error instanceof Error ? error.message : 'Failed to update inquiry. Please try again.');
+        setUpdatingInquiryStep2(false);
+        return;
+      }
+
+      setUpdatingInquiryStep2(false);
+    }
+
+    setStep(s => s + 1);
+  };
   const back = () => setStep(s => s - 1);
 
   const handleSubmit = async () => {
+    if (!inquiryId) {
+      setApiError('Session expired. Please go back to step 1 and try again.');
+      return;
+    }
+
+    setApiError('');
     setSubmitting(true);
-    await base44.entities.Lead.create(form);
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      const completeResult = await base44.inquiry.complete(inquiryId);
+      if (!completeResult.success) {
+        throw new Error(completeResult.message || 'Failed to complete inquiry. Please try again.');
+      }
+      setSubmitted(true);
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : 'Failed to complete inquiry. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -271,6 +368,12 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
       )}
 
       {/* Navigation */}
+      {apiError && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-6">
+          {apiError}
+        </p>
+      )}
+
       <div className="flex gap-3 pt-6">
         {step > 0 && (
           <button type="button" onClick={back}
@@ -279,12 +382,14 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
           </button>
         )}
         {step < 2 ? (
-          <button type="button" onClick={next}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90 h-12 rounded-lg text-sm font-semibold transition-colors">
-            Continue <ChevronRight className="w-4 h-4" />
+          <button type="button" onClick={() => { void next(); }} disabled={startingInquiry || updatingInquiryStep2}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-60 disabled:pointer-events-none h-12 rounded-lg text-sm font-semibold transition-colors">
+            {startingInquiry || updatingInquiryStep2 ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {startingInquiry || updatingInquiryStep2 ? 'Continuing...' : 'Continue'}
+            {!startingInquiry && !updatingInquiryStep2 ? <ChevronRight className="w-4 h-4" /> : null}
           </button>
         ) : (
-          <button type="button" onClick={handleSubmit} disabled={submitting || !consent}
+          <button type="button" onClick={handleSubmit} disabled={submitting || startingInquiry || updatingInquiryStep2}
             className="flex-1 flex items-center justify-center gap-2 bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none h-12 rounded-lg text-sm font-semibold transition-colors">
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             {submitting ? 'Submitting...' : serviceInterest === 'studio_matching' ? 'Get My Brand Match →' : 'Submit Inquiry →'}

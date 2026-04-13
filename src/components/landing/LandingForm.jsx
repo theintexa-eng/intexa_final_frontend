@@ -34,17 +34,17 @@ const propertyOptions = [
 ];
 
 const budgetOptions = [
-  ['under_10L', 'Under ₹10 Lakhs'],
-  ['10L_20L', '₹10 – ₹20 Lakhs'],
-  ['20L_35L', '₹20 – ₹35 Lakhs'],
-  ['35L_50L', '₹35 – ₹50 Lakhs'],
-  ['above_50L', 'Above ₹50 Lakhs'],
+  ['under_10L', 'Under 10 Lakhs'],
+  ['10L_20L', '10 - 20 Lakhs'],
+  ['20L_35L', '20 - 35 Lakhs'],
+  ['35L_50L', '35 - 50 Lakhs'],
+  ['above_50L', 'Above 50 Lakhs'],
 ];
 
 const timelineOptions = [
   ['immediate', 'Immediately'],
-  ['1_3_months', 'Within 1–3 months'],
-  ['3_6_months', 'In 3–6 months'],
+  ['1_3_months', 'Within 1-3 months'],
+  ['3_6_months', 'In 3-6 months'],
   ['6_months_plus', 'Planning ahead (6+ months)'],
 ];
 
@@ -56,13 +56,32 @@ export default function LandingForm() {
     service_interest: 'studio_matching'
   });
   const [consent, setConsent] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [startingInquiry, setStartingInquiry] = useState(false);
+  const [updatingInquiryStep2, setUpdatingInquiryStep2] = useState(false);
+  const [inquiryId, setInquiryId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    city: '',
+    property_type: '',
+    budget: '',
+    timeline: '',
+  });
 
+  /** @param {string} k @param {string} v */
   const set = (k, v) => {
     setForm(prev => ({ ...prev, [k]: v }));
     setErrors(prev => ({ ...prev, [k]: undefined }));
+    if (apiError) setApiError('');
+
+    // Contact changes should invalidate earlier inquiry id and request a fresh start.
+    if (inquiryId && ['name', 'phone', 'email', 'city'].includes(k)) {
+      setInquiryId('');
+    }
   };
 
   const validateStep = () => {
@@ -83,18 +102,99 @@ export default function LandingForm() {
     return Object.keys(errs).length === 0;
   };
 
-  const next = () => {
+  /**
+    * @param {string[][]} options
+   * @param {string} value
+   */
+  const getOptionLabel = (options, value) => options.find(([v]) => v === value)?.[1] || '';
+
+  const next = async () => {
     if (!validateStep()) return;
+
+    if (step === 0) {
+      if (inquiryId) {
+        setStep(1);
+        return;
+      }
+
+      setStartingInquiry(true);
+      setApiError('');
+
+      try {
+        const startResult = await base44.inquiry.start({
+          name: form.name.trim(),
+          phone: form.phone.replace(/\D/g, ''),
+          email: form.email.trim(),
+          city: form.city.trim(),
+        });
+
+        if (!startResult.success || !startResult.inquiryId) {
+          throw new Error(startResult.message || 'Failed to start inquiry. Please try again.');
+        }
+
+        setInquiryId(startResult.inquiryId);
+      } catch (error) {
+        setApiError(error instanceof Error ? error.message : 'Failed to start inquiry. Please try again.');
+        setStartingInquiry(false);
+        return;
+      }
+
+      setStartingInquiry(false);
+    }
+
+    if (step === 1) {
+      if (!inquiryId) {
+        setApiError('Session expired. Please go back to step 1 and try again.');
+        return;
+      }
+
+      setUpdatingInquiryStep2(true);
+      setApiError('');
+
+      try {
+        const step2Result = await base44.inquiry.step2(inquiryId, {
+          propertyType: getOptionLabel(propertyOptions, form.property_type),
+          budget: getOptionLabel(budgetOptions, form.budget),
+          timeline: getOptionLabel(timelineOptions, form.timeline),
+          message: '',
+        });
+
+        if (!step2Result.success) {
+          throw new Error(step2Result.message || 'Failed to update inquiry. Please try again.');
+        }
+      } catch (error) {
+        setApiError(error instanceof Error ? error.message : 'Failed to update inquiry. Please try again.');
+        setUpdatingInquiryStep2(false);
+        return;
+      }
+
+      setUpdatingInquiryStep2(false);
+    }
+
     setStep(s => Math.min(s + 1, STEPS.length - 1));
   };
 
   const back = () => setStep(s => Math.max(s - 1, 0));
 
   const submit = async () => {
+    if (!inquiryId) {
+      setApiError('Session expired. Please go back to step 1 and try again.');
+      return;
+    }
+
+    setApiError('');
     setSubmitting(true);
-    await base44.entities.Lead.create(form);
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      const completeResult = await base44.inquiry.complete(inquiryId);
+      if (!completeResult.success) {
+        throw new Error(completeResult.message || 'Failed to complete inquiry. Please try again.');
+      }
+      setSubmitted(true);
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : 'Failed to complete inquiry. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const progress = ((step) / (STEPS.length - 1)) * 100;
@@ -268,6 +368,12 @@ export default function LandingForm() {
           )}
 
           {/* Navigation */}
+          {apiError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {apiError}
+            </p>
+          )}
+
           <div className="flex gap-3 mt-8">
             {step > 0 && (
               <button
@@ -281,16 +387,19 @@ export default function LandingForm() {
             {step < 2 ? (
               <button
                 type="button"
-                onClick={next}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90 h-12 rounded-lg text-sm font-semibold transition-colors"
+                onClick={() => { void next(); }}
+                disabled={startingInquiry || updatingInquiryStep2}
+                className="flex-1 flex items-center justify-center gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-60 disabled:pointer-events-none h-12 rounded-lg text-sm font-semibold transition-colors"
               >
-                Continue <ChevronRight className="w-4 h-4" />
+                {startingInquiry || updatingInquiryStep2 ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {startingInquiry || updatingInquiryStep2 ? 'Continuing...' : 'Continue'}
+                {!startingInquiry && !updatingInquiryStep2 ? <ChevronRight className="w-4 h-4" /> : null}
               </button>
             ) : (
               <button
                 type="button"
                 onClick={submit}
-                disabled={submitting || !consent}
+                disabled={submitting || startingInquiry || updatingInquiryStep2}
                 className="flex-1 flex items-center justify-center gap-2 bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-50 disabled:pointer-events-none h-12 rounded-lg text-sm font-semibold transition-colors"
               >
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -307,6 +416,7 @@ export default function LandingForm() {
   );
 }
 
+/** @param {{ label: string, error?: string, children: React.ReactNode }} props */
 function Field({ label, error, children }) {
   return (
     <div className="space-y-1.5">
@@ -317,6 +427,7 @@ function Field({ label, error, children }) {
   );
 }
 
+/** @param {string} error */
 function input(error) {
   return `w-full h-10 px-3 rounded-lg border text-sm transition-colors outline-none focus:ring-1 focus:ring-accent focus:border-accent ${error ? 'border-red-400 bg-red-50' : 'border-border bg-white'}`;
 }

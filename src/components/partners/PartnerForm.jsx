@@ -59,12 +59,23 @@ export default function PartnerForm() {
   });
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const specializationLabels = {
+    residential: 'Residential Interiors',
+    commercial: 'Commercial / Office',
+    hospitality: 'Hospitality',
+    architecture: 'Architecture',
+    exterior: 'Exterior / Landscape',
+    multiple: 'Multiple Specializations',
+  };
 
   const set = (k, v) => {
     setForm(prev => ({ ...prev, [k]: v }));
     setErrors(prev => ({ ...prev, [k]: undefined }));
+    if (apiError) setApiError('');
   };
 
   const validateStep = () => {
@@ -106,31 +117,38 @@ export default function PartnerForm() {
 
   const handleSubmit = async () => {
     if (!validateStep()) return;
+    setApiError('');
     setSubmitting(true);
-    await base44.entities.Lead.create({
-      name: form.name,
-      phone: form.phone,
-      email: form.email,
-      city: form.city,
-      message: [
-        `Brand Partner Application`,
-        `Studio Name: ${form.studioName}`,
-        `Year Established: ${form.yearEstablished}`,
-        `Principal Designer: ${form.principalDesigner}`,
-        `Team Size: ${form.teamSize}`,
-        `Specialization: ${form.services}`,
-        `Project Value Range: ${form.projectValueRange}`,
-        `Portfolio: ${form.portfolioLink}`,
-        `Website/Social: ${form.websiteLink}`,
-        `GST Number: ${form.gstNumber}`,
-        `Client Ref 1: ${form.clientRef1}`,
-        `Client Ref 2: ${form.clientRef2}`,
-      ].join('\n'),
-      service_interest: 'general_inquiry',
-      status: 'new',
-    });
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      const result = await base44.partners.apply({
+        studioName: form.studioName.trim(),
+        yearOfEstablishment: form.yearEstablished.trim(),
+        founderName: form.principalDesigner.trim(),
+        teamSize: form.teamSize.trim(),
+        contactName: form.name.trim(),
+        phone: form.phone.replace(/\D/g, ''),
+        email: form.email.trim(),
+        city: form.city.trim(),
+        specialization: specializationLabels[form.services] || form.services,
+        projectValueRange: form.projectValueRange.trim(),
+        portfolioLink: form.portfolioLink.trim(),
+        website: form.websiteLink.trim(),
+        gstNumber: form.gstNumber.trim(),
+        clientRef1: form.clientRef1.trim(),
+        clientRef2: form.clientRef2.trim(),
+        consent,
+      });
+
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to submit application. Please try again.');
+      }
+
+      setSubmitted(true);
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : 'Failed to submit application. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -270,6 +288,12 @@ export default function PartnerForm() {
       )}
 
       {/* Navigation */}
+      {apiError && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-6">
+          {apiError}
+        </p>
+      )}
+
       <div className="flex gap-3 pt-7">
         {step > 0 && (
           <button type="button" onClick={back}
