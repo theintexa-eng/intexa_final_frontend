@@ -37,7 +37,7 @@ export default function Contact() {
                 <h3 className="font-semibold mb-4">Reach us directly</h3>
                 <div className="space-y-4">
                   <a href="tel:+919217919111" className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
-                   <Phone className="w-4 h-4 text-accent" /> +91 9217 919 111
+                   <Phone className="w-4 h-4 text-accent" /> +91 7763840602
                   </a>
                   <a href="mailto:team@intexa.in" className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
                     <Mail className="w-4 h-4 text-accent" /> team@intexa.in

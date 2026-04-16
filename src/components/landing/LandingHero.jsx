@@ -79,10 +79,10 @@ export default function LandingHero() {
             Get Matched with the Right Brands →
           </button>
           <a
-            href="tel:+917763840602"
+            href="tel:+919217919111"
             className="border border-white/25 bg-transparent text-white hover:bg-white/10 px-8 h-14 rounded-md font-semibold text-sm tracking-wide transition-colors flex items-center justify-center"
           >
-            Call Us: +91 7763840602
+            Call Us: +91 9217 919 111
           </a>
         </motion.div>
 
