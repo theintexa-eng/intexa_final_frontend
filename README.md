@@ -86,9 +86,9 @@ The contact multi-step forms now call the inquiry start endpoint on the first Co
 ### Environment setup
 
 - Optional: set `VITE_API_BASE_URL` in `.env.local`.
-	- Example backend: `VITE_API_BASE_URL=http://54.167.39.107:3000`
+	- Example backend: `VITE_API_BASE_URL=https://api.intexa.in`
 - If `VITE_API_BASE_URL` is not set, frontend uses relative paths like `/api/inquiry/start`.
-- Vite dev server proxy is configured in `vite.config.js` to forward `/api/*` to `http://54.167.39.107:3000`.
+- Vite dev server proxy is configured in `vite.config.js` to forward `/api/*` to `https://api.intexa.in`.
 
 ### Production notes
 

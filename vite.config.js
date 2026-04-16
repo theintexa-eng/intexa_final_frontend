@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://54.167.39.107:3000',
+        target: 'https://api.intexa.in',
         changeOrigin: true,
       },
     },

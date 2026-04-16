@@ -2,7 +2,7 @@ const env = /** @type {{ VITE_LEAD_API_URL?: string, VITE_API_BASE_URL?: string 
   /** @type {any} */ (import.meta).env
 );
 const leadApiUrl = env?.VITE_LEAD_API_URL;
-const apiBaseUrl = (env?.VITE_API_BASE_URL || 'http://54.167.39.107:3000').replace(/\/$/, '');
+const apiBaseUrl = (env?.VITE_API_BASE_URL || 'https://api.intexa.in').replace(/\/$/, '');
 
 /** @param {Record<string, unknown>} payload */
 const saveLeadLocally = (payload) => {

@@ -7,7 +7,7 @@ This file explains where to set backend URL after deploying backend on AWS.
 If backend runs locally on port 3000:
 
 - Keep frontend as it is.
-- vite.config.js already proxies /api to http://54.167.39.107:3000.
+- vite.config.js already proxies /api to https://api.intexa.in.
 
 File:
 - vite.config.js
@@ -26,7 +26,9 @@ or
 
 ```env
 VITE_API_BASE_URL=https://your-load-balancer-url.amazonaws.com
-- vite.config.js already proxies /api to http://54.167.39.107:3000.
+```
+
+- vite.config.js already proxies /api to https://api.intexa.in.
 
 Do not add trailing slash.
 
