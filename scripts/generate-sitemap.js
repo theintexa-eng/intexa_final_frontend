@@ -11,6 +11,11 @@ const routes = [
   "/process",
   "/pricing",
   "/contact",
+  // Meta Ads landing pages
+  "/lp/consultation",
+  "/lp/boq-audit",
+  "/lp/brand-match",
+  "/lp/plan",
 ];
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

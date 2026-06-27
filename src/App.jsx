@@ -23,6 +23,8 @@ import TermsOfService from './pages/TermsOfService';
 import FAQ from './pages/FAQ';
 import GetMatched from './pages/GetMatched';
 import Sitemap from './pages/Sitemap';
+import LandingLayout from './components/layout/LandingLayout';
+import CampaignLanding from './pages/lp/CampaignLanding';
 
 function App() {
   return (
@@ -48,6 +50,13 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/get-matched" element={<GetMatched />} />
             <Route path="/sitemap" element={<Sitemap />} />
+          </Route>
+          {/* Meta Ads landing pages — stripped conversion layout (no global nav) */}
+          <Route element={<LandingLayout />}>
+            <Route path="/lp/consultation" element={<CampaignLanding angle="consultation" />} />
+            <Route path="/lp/boq-audit" element={<CampaignLanding angle="boq-audit" />} />
+            <Route path="/lp/brand-match" element={<CampaignLanding angle="brand-match" />} />
+            <Route path="/lp/plan" element={<CampaignLanding angle="plan" />} />
           </Route>
           <Route path="*" element={<PageNotFound />} />
         </Routes>
