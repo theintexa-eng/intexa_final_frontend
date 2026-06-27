@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import WhatsAppButton from '../shared/WhatsAppButton';
+import SiteAnalytics from '../SiteAnalytics';
 
 export default function Layout() {
   const location = useLocation();
@@ -20,6 +21,7 @@ export default function Layout() {
       </main>
       <Footer />
       <WhatsAppButton />
+      <SiteAnalytics />
     </div>
   );
 }

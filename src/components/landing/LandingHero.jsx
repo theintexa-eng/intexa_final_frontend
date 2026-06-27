@@ -91,7 +91,6 @@ export default function LandingHero({ angle, eyebrow, title, subtitle, ctaLabel,
           </button>
           <a
             href="tel:+919217919111"
-            onClick={() => trackEvent('call_click', { loc: 'hero', angle })}
             className="border border-white/25 bg-transparent text-white hover:bg-white/10 px-8 h-14 rounded-md font-semibold text-sm tracking-wide transition-colors flex items-center justify-center"
           >
             Call Us: +91 9217 919 111
