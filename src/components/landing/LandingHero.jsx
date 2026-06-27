@@ -7,7 +7,7 @@ const DEFAULTS = {
   eyebrow: 'Trusted by 200+ homeowners & developers · Delhi NCR',
   subtitle: 'INTEXA is an independent project advisor. We understand your space, validate your budget, and match you with 2–3 curated brands — so your ₹15L–₹50L+ project starts right.',
   ctaLabel: 'Get Matched with the Right Brands →',
-  image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2400&auto=format&fit=crop',
+  image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=70&w=1600&auto=format&fit=crop',
 };
 
 export default function LandingHero({ angle, eyebrow, title, subtitle, ctaLabel, image } = {}) {
@@ -27,6 +27,9 @@ export default function LandingHero({ angle, eyebrow, title, subtitle, ctaLabel,
         <img
           src={image || DEFAULTS.image}
           alt="Premium interior"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
           className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-[#0D1B2A]/85" />

@@ -8,7 +8,7 @@ const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://www.intexa.in').repl
 export const LP_PHONE = '+919217919111';
 export const LP_PHONE_DISPLAY = '+91 9217 919 111';
 // Shared hero image (reuse the existing live hero asset; per-angle override via config later).
-export const HERO_IMAGE = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2400&auto=format&fit=crop';
+export const HERO_IMAGE = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=70&w=1600&auto=format&fit=crop';
 const OG_IMAGE = 'https://media.base44.com/images/public/user_69bf8f0482d83e3867d98bbb/580701ef2_FinalLogoTransparent_1.png';
 
 export const ANGLES = {
