@@ -2,6 +2,7 @@ import React from 'react';
 import { MessageCircle } from 'lucide-react';
 
 export default function WhatsAppButton() {
+  // whatsapp_click is captured site-wide by the SiteAnalytics delegated listener (wa.me).
   return (
     <a
       href="https://wa.me/919217919111?text=Hi%20INTEXA%2C%20I%20want%20to%20discuss%20my%20project."

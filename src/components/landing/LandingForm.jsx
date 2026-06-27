@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, Loader2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
+import { utmToMessage } from '@/hooks/useUtm';
 
 const STEPS = [
   {
@@ -48,12 +50,13 @@ const timelineOptions = [
   ['6_months_plus', 'Planning ahead (6+ months)'],
 ];
 
-export default function LandingForm() {
+export default function LandingForm({ angle = 'consultation', serviceInterest = 'studio_matching' } = {}) {
+  const startedRef = useRef(false);
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     name: '', phone: '', email: '', city: '',
     property_type: '', budget: '', timeline: '',
-    service_interest: 'studio_matching'
+    service_interest: serviceInterest
   });
   const [consent, setConsent] = useState(false);
   const [apiError, setApiError] = useState('');
@@ -74,6 +77,7 @@ export default function LandingForm() {
 
   /** @param {string} k @param {string} v */
   const set = (k, v) => {
+    if (!startedRef.current) { startedRef.current = true; trackEvent('form_start', { angle }); }
     setForm(prev => ({ ...prev, [k]: v }));
     setErrors(prev => ({ ...prev, [k]: undefined }));
     if (apiError) setApiError('');
@@ -156,7 +160,7 @@ export default function LandingForm() {
           propertyType: getOptionLabel(propertyOptions, form.property_type),
           budget: getOptionLabel(budgetOptions, form.budget),
           timeline: getOptionLabel(timelineOptions, form.timeline),
-          message: '',
+          message: `[lp:${angle}|${serviceInterest}]` + utmToMessage(),
         });
 
         if (!step2Result.success) {
@@ -171,6 +175,7 @@ export default function LandingForm() {
       setUpdatingInquiryStep2(false);
     }
 
+    trackEvent('form_step', { angle, step: Math.min(step + 1, STEPS.length - 1) });
     setStep(s => Math.min(s + 1, STEPS.length - 1));
   };
 
@@ -179,6 +184,10 @@ export default function LandingForm() {
   const submit = async () => {
     if (!inquiryId) {
       setApiError('Session expired. Please go back to step 1 and try again.');
+      return;
+    }
+    if (!consent) {
+      setApiError('Please accept the Privacy Policy to continue.');
       return;
     }
 
@@ -190,6 +199,9 @@ export default function LandingForm() {
         throw new Error(completeResult.message || 'Failed to complete inquiry. Please try again.');
       }
       setSubmitted(true);
+      // Aligned with the live GTM container (GTM-PVCG27S6): the `lead_submit`
+      // dataLayer event fires the GA4 generate_lead tag + the Meta Pixel Lead tag.
+      trackEvent('lead_submit', { angle, service_interest: serviceInterest, event_id: inquiryId, value: 2999, currency: 'INR' });
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to complete inquiry. Please try again.');
     } finally {

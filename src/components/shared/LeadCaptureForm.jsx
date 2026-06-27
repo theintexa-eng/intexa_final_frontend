@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { trackEvent } from '@/lib/analytics';
+import { utmToMessage } from '@/hooks/useUtm';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -87,6 +89,7 @@ function TileGroup({ options, value, onChange, cols = 2 }) {
 }
 
 export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', compact = false }) {
+  const startedRef = useRef(false);
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     name: '', phone: '', email: '', city: '',
@@ -103,6 +106,7 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
   const [submitted, setSubmitted] = useState(false);
 
   const set = (k, v) => {
+    if (!startedRef.current) { startedRef.current = true; trackEvent('form_start', { form: 'lead_capture', service_interest: serviceInterest }); }
     setForm(prev => ({ ...prev, [k]: v }));
     setErrors(prev => ({ ...prev, [k]: undefined }));
     if (apiError) setApiError('');
@@ -185,7 +189,7 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
           propertyType: getOptionLabel(propertyOptions, form.property_type),
           budget: getOptionLabel(budgetOptions, form.budget),
           timeline: getOptionLabel(timelineOptions, form.timeline),
-          message: form.message?.trim() || '',
+          message: (form.message?.trim() ? form.message.trim() + ' ' : '') + `[${serviceInterest}]` + utmToMessage(),
         };
 
         console.log('[FORM Step2] Inquiry ID:', inquiryId);
@@ -215,6 +219,10 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
       setApiError('Session expired. Please go back to step 1 and try again.');
       return;
     }
+    if (!consent) {
+      setApiError('Please accept the Privacy Policy to continue.');
+      return;
+    }
 
     setApiError('');
     setSubmitting(true);
@@ -224,6 +232,8 @@ export default function LeadCaptureForm({ serviceInterest = 'general_inquiry', c
         throw new Error(completeResult.message || 'Failed to complete inquiry. Please try again.');
       }
       setSubmitted(true);
+      // Aligned with the live GTM container: lead_submit → GA4 generate_lead + Pixel Lead.
+      trackEvent('lead_submit', { form: 'lead_capture', service_interest: serviceInterest, event_id: inquiryId, value: 2999, currency: 'INR' });
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to complete inquiry. Please try again.');
     } finally {
