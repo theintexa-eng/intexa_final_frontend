@@ -199,8 +199,9 @@ export default function LandingForm({ angle = 'consultation', serviceInterest = 
         throw new Error(completeResult.message || 'Failed to complete inquiry. Please try again.');
       }
       setSubmitted(true);
-      trackEvent('form_submit', { angle, service_interest: serviceInterest });
-      trackEvent('generate_lead', { angle, event_id: inquiryId, value: 2999, currency: 'INR' });
+      // Aligned with the live GTM container (GTM-PVCG27S6): the `lead_submit`
+      // dataLayer event fires the GA4 generate_lead tag + the Meta Pixel Lead tag.
+      trackEvent('lead_submit', { angle, service_interest: serviceInterest, event_id: inquiryId, value: 2999, currency: 'INR' });
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Failed to complete inquiry. Please try again.');
     } finally {

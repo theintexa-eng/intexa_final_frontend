@@ -25,7 +25,7 @@ function LpHeader() {
           <img src={LOGO} alt="INTEXA" className="h-7 w-auto" />
         </button>
         <div className="flex items-center gap-3">
-          <a href={`tel:${LP_PHONE}`} onClick={() => trackEvent('cta_click', { loc: 'header_phone' })} className="hidden sm:inline text-white/80 text-sm hover:text-white transition-colors">
+          <a href={`tel:${LP_PHONE}`} onClick={() => trackEvent('call_click', { loc: 'header' })} className="hidden sm:inline text-white/80 text-sm hover:text-white transition-colors">
             {LP_PHONE_DISPLAY}
           </a>
           <button type="button" onClick={toForm} className="bg-accent text-accent-foreground text-sm font-semibold px-4 h-10 rounded-md hover:bg-accent/90 transition-colors">

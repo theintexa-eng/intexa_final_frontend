@@ -1,5 +1,6 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 export default function WhatsAppButton() {
   return (
@@ -7,6 +8,7 @@ export default function WhatsAppButton() {
       href="https://wa.me/919217919111?text=Hi%20INTEXA%2C%20I%20want%20to%20discuss%20my%20project."
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackEvent('whatsapp_click', { loc: 'float' })}
       className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 group"
       aria-label="Chat with us on WhatsApp"
     >

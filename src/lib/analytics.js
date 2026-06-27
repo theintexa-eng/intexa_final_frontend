@@ -6,7 +6,9 @@
  *   VITE_GTM_ID  (if unset, everything safely no-ops)
  */
 
-const GTM_ID = import.meta.env.VITE_GTM_ID;
+// GTM hosts GA4 + Meta Pixel as tags, so the app only needs the container ID.
+// Default to the live INTEXA container (GTM IDs are public, embedded on every page).
+const GTM_ID = import.meta.env.VITE_GTM_ID || 'GTM-PVCG27S6';
 const CONSENT_KEY = 'intexa_consent';
 
 function dl() {
@@ -46,7 +48,8 @@ function loadGtm() {
 /** Call once on app/LP boot: set denied-by-default, and load GTM if already granted. */
 export function bootAnalytics() {
   pushDL({ event: 'default_consent', consent: { ad_storage: 'denied', analytics_storage: 'denied' } });
-  if (getConsent() === 'granted') loadGtm();
+  // Align with the live site (GTM/Pixel fire site-wide): load unless explicitly declined.
+  if (getConsent() !== 'denied') loadGtm();
 }
 
 export function grantConsent() {
