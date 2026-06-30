@@ -1,4 +1,5 @@
 import React from 'react';
+import { trackEvent } from '@/lib/analytics';
 
 const steps = [
   {
@@ -27,7 +28,15 @@ const steps = [
   }
 ];
 
-export default function LandingProcess() {
+export default function LandingProcess({ bookingMode } = {}) {
+  const onCta = () => {
+    if (bookingMode) {
+      trackEvent('schedule_consultation', { loc: 'process' });
+      document.getElementById('book-consultation')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    document.getElementById('get-matched-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
   return (
     <section className="py-16 lg:py-20 bg-primary">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,12 +65,15 @@ export default function LandingProcess() {
 
         <div className="mt-10 text-center">
           <button
-            onClick={() => document.getElementById('get-matched-form')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={onCta}
+            data-cta={bookingMode ? 'book-consultation' : undefined}
             className="bg-accent text-accent-foreground hover:bg-accent/90 px-10 h-13 rounded-md font-semibold text-sm tracking-wide transition-colors py-4"
           >
-            Get Matched with the Right Brands →
+            {bookingMode ? 'Book Free 30-Min Consultation →' : 'Get Matched with the Right Brands →'}
           </button>
-          <p className="text-white/30 text-xs mt-3">₹2,999 one-time. Pay only after your match is confirmed.</p>
+          <p className="text-white/30 text-xs mt-3">
+            {bookingMode ? 'Free 30-minute consultation on Google Meet. No obligation.' : '₹2,999 one-time. Pay only after your match is confirmed.'}
+          </p>
         </div>
       </div>
     </section>

@@ -11,15 +11,38 @@ export const LP_PHONE_DISPLAY = '+91 9217 919 111';
 export const HERO_IMAGE = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=70&w=1600&auto=format&fit=crop';
 const OG_IMAGE = 'https://media.base44.com/images/public/user_69bf8f0482d83e3867d98bbb/580701ef2_FinalLogoTransparent_1.png';
 
+// Public Google Workspace Appointment Scheduler booking link (team@intexa.in).
+// Set VITE_BOOKING_URL in the build env, or replace the placeholder default once the
+// schedule is created. Used by the appointment-first consultation LP (all CTAs + embed).
+export const BOOKING_URL =
+  import.meta.env.VITE_BOOKING_URL || 'https://calendar.app.google/XLABQP2hbVoQtmfc9';
+// Full scheduling URL for the on-page iframe embed (Google requires the long URL + ?gv=true).
+export const BOOKING_EMBED_URL =
+  import.meta.env.VITE_BOOKING_EMBED_URL ||
+  'https://calendar.google.com/calendar/appointments/schedules/AcZssZ3ZQPLThx9a7L-PHa6DPjT3TokKvrYr55N8WIuJK5SzCJufadIrpDSd1yukBKMCAK6ZitVV5_l0?gv=true';
+
+// Appointment-first FAQs for /lp/consultation (no commission claims; consultation-led,
+// with carefully qualified savings language).
+export const CONSULTATION_FAQS = [
+  { q: 'What happens during the consultation?', a: 'A focused 30-minute Google Meet with an independent INTEXA advisor. We understand your space and goals, pressure-test your budget, flag the risks most projects miss, and map out clear next steps — including a shortlist of 2–3 vetted brands that genuinely fit your project.' },
+  { q: 'Is the consultation really free?', a: 'Yes — the 30-minute consultation is completely free and with no obligation. It is real, useful advice to help you start your project on the right footing.' },
+  { q: 'How can INTEXA help me save on my project?', a: 'Independent, upfront planning helps you avoid over-specifying, mismatched scope and expensive rework. Through better planning and informed decisions, homeowners can potentially save up to 10–15% on a typical project — while improving the final result.' },
+  { q: 'Who should book a consultation?', a: 'Anyone planning a ₹15L–₹50L+ home or office interior in Delhi NCR — whether you have just taken possession, are comparing designers, or already have quotations in hand.' },
+  { q: 'What should I prepare before the meeting?', a: 'Just the basics: your space (size/layout), a rough budget range, your timeline, and any quotes or designer shortlists you already have. The more context you share when booking, the more tailored the advice.' },
+  { q: 'Which areas do you serve?', a: 'Delhi, Gurgaon, Noida, Greater Noida and Faridabad — across Delhi NCR.' },
+];
+
 export const ANGLES = {
   consultation: {
     serviceInterest: 'studio_matching',
-    eyebrow: 'Delhi NCR · Interior Project Advisory',
-    title: 'We work for you — not your designer.',
-    subtitle: "INTEXA is your independent project advisor. We plan your brief, match you with 2–3 vetted brands, and protect your budget — book a 30-minute consultation. ₹2,999, pay only after your match is confirmed.",
-    ctaLabel: 'Book 30-Min Consultation →',
-    seoTitle: 'Interior Project Advisory, Delhi NCR | INTEXA',
-    seoDescription: 'Independent interior project advisory in Delhi NCR. We plan your brief, match the right brand and protect your budget. Book a 30-min consultation — ₹2,999, pay after match.',
+    bookingUrl: BOOKING_URL,
+    faqs: CONSULTATION_FAQS,
+    eyebrow: 'Delhi NCR · Free Interior Project Consultation',
+    title: 'Book a free 30-minute consultation with an independent interior advisor.',
+    subtitle: 'Get a clear plan, a realistic budget and the right brand match before you commit — independent guidance that can help you save up to 10–15% through better planning and smarter decisions.',
+    ctaLabel: 'Book Free 30-Min Consultation →',
+    seoTitle: 'Free Interior Project Consultation, Delhi NCR | INTEXA',
+    seoDescription: 'Book a free 30-minute consultation with INTEXA, an independent interior project advisor in Delhi NCR. Plan smarter, budget better, and avoid costly mistakes.',
   },
   'boq-audit': {
     serviceInterest: 'boq_audit',
@@ -66,6 +89,10 @@ export const LP_FAQS = [
 export function lpSeo(angle) {
   const a = ANGLES[angle] || ANGLES[DEFAULT_ANGLE];
   const url = `${SITE_URL}/lp/${angle}`;
+  const faqs = a.faqs || LP_FAQS;
+  const offer = angle === 'consultation'
+    ? { '@type': 'Offer', name: 'Free 30-Minute Interior Project Consultation', price: '0', priceCurrency: 'INR' }
+    : { '@type': 'Offer', name: 'Brand Matching Consultation', price: '2999', priceCurrency: 'INR' };
   return {
     title: a.seoTitle,
     description: a.seoDescription,
@@ -82,16 +109,11 @@ export function lpSeo(angle) {
           url,
           telephone: LP_PHONE,
           areaServed: ['Delhi', 'Gurgaon', 'Noida', 'Greater Noida', 'Faridabad'].map((n) => ({ '@type': 'City', name: n })),
-          makesOffer: {
-            '@type': 'Offer',
-            name: 'Brand Matching Consultation',
-            price: '2999',
-            priceCurrency: 'INR',
-          },
+          makesOffer: offer,
         },
         {
           '@type': 'FAQPage',
-          mainEntity: LP_FAQS.map((f) => ({
+          mainEntity: faqs.map((f) => ({
             '@type': 'Question',
             name: f.q,
             acceptedAnswer: { '@type': 'Answer', text: f.a },
