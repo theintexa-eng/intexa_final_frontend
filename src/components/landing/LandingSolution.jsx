@@ -29,11 +29,17 @@ export default function LandingSolution({ bookingMode } = {}) {
     }
     document.getElementById('get-matched-form')?.scrollIntoView({ behavior: 'smooth' });
   };
-  // In appointment-first mode, present independence as a value prop without commission framing.
+  // In appointment-first mode: benefit-led pillar titles + independence framed without commission language.
+  const bookingPillarTitles = {
+    0: 'Know your budget is realistic — before you spend a rupee.',
+    1: 'Get matched to 2–3 brands that actually fit.',
+  };
   const pillarsToUse = bookingMode
-    ? pillars.map((p, i) => (i === 2
-        ? { ...p, body: "INTEXA is not a studio and not a contractor — we're an independent advisor on your side. Our only incentive is to get your project right." }
-        : p))
+    ? pillars.map((p, i) => {
+        if (i === 2) return { ...p, body: "INTEXA is not a studio and not a contractor — we're an independent advisor on your side. Our only incentive is to get your project right." };
+        if (bookingPillarTitles[i]) return { ...p, title: bookingPillarTitles[i] };
+        return p;
+      })
     : pillars;
   return (
     <section className="py-16 lg:py-20 bg-white">
@@ -70,7 +76,7 @@ export default function LandingSolution({ bookingMode } = {}) {
             data-cta={bookingMode ? 'book-consultation' : undefined}
             className="flex-shrink-0 inline-flex items-center gap-2 bg-accent text-accent-foreground hover:bg-accent/90 px-6 h-11 rounded-md font-semibold text-sm transition-colors"
           >
-            {bookingMode ? 'Book Free Consultation' : 'Start My Project'} <ArrowRight className="w-4 h-4" />
+            {bookingMode ? 'Book My Free Consultation' : 'Start My Project'} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

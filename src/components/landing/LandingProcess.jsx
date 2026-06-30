@@ -28,7 +28,35 @@ const steps = [
   }
 ];
 
+const bookingSteps = [
+  {
+    num: '01',
+    title: 'Pick a time that suits you',
+    desc: 'Choose a free 30-minute slot on the calendar — mornings, afternoons or weekends.',
+    note: 'Takes ~60 seconds. No obligation.'
+  },
+  {
+    num: '02',
+    title: 'We prepare for your call',
+    desc: 'We review what you shared so your advisor comes ready with tailored, relevant guidance.',
+    note: 'A real advisor. No bots.'
+  },
+  {
+    num: '03',
+    title: 'Get your plan on the call',
+    desc: 'A clear brief, a realistic budget, and a shortlist of 2–3 vetted brands that fit your project.',
+    note: 'You choose. We advise.'
+  },
+  {
+    num: '04',
+    title: 'Start with confidence',
+    desc: 'Begin your project knowing you\'ve made an informed decision with expert backing.',
+    note: '7-day post-consultation support.'
+  }
+];
+
 export default function LandingProcess({ bookingMode } = {}) {
+  const stepsToUse = bookingMode ? bookingSteps : steps;
   const onCta = () => {
     if (bookingMode) {
       trackEvent('schedule_consultation', { loc: 'process' });
@@ -51,7 +79,7 @@ export default function LandingProcess({ bookingMode } = {}) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((step, i) => (
+          {stepsToUse.map((step, i) => (
             <div key={i} className="relative bg-white/5 border border-white/10 rounded-xl p-6">
               <span className="font-display text-4xl font-bold text-accent/40">{step.num}</span>
               <h3 className="text-white font-semibold text-base mt-3 mb-2 leading-snug">{step.title}</h3>
@@ -69,7 +97,7 @@ export default function LandingProcess({ bookingMode } = {}) {
             data-cta={bookingMode ? 'book-consultation' : undefined}
             className="bg-accent text-accent-foreground hover:bg-accent/90 px-10 h-13 rounded-md font-semibold text-sm tracking-wide transition-colors py-4"
           >
-            {bookingMode ? 'Book Free 30-Min Consultation →' : 'Get Matched with the Right Brands →'}
+            {bookingMode ? 'Book My Free Consultation →' : 'Get Matched with the Right Brands →'}
           </button>
           <p className="text-white/30 text-xs mt-3">
             {bookingMode ? 'Free 30-minute consultation on Google Meet. No obligation.' : '₹2,999 one-time. Pay only after your match is confirmed.'}

@@ -39,7 +39,7 @@ function LpHeader() {
             </a>
           )}
           <button type="button" onClick={onCta} data-cta={bookingMode ? 'book-consultation' : undefined} className="bg-accent text-accent-foreground text-sm font-semibold px-4 h-10 rounded-md hover:bg-accent/90 transition-colors">
-            {bookingMode ? 'Book Free Consultation' : 'Book ₹2,999'}
+            {bookingMode ? 'Book My Free Consultation' : 'Book ₹2,999'}
           </button>
         </div>
       </div>

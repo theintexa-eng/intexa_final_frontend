@@ -111,7 +111,7 @@ export default function LandingHero({ angle, eyebrow, title, subtitle, ctaLabel,
         {/* Micro-copy */}
         <p className="text-white/35 text-xs mt-5">
           {bookingMode
-            ? 'Free 30-minute Google Meet · No obligation · Independent advice from an advisor who works only for you.'
+            ? 'Free · 30 minutes on Google Meet · No sales pressure · Pick a slot in 60 seconds.'
             : 'No spam. No random vendor calls. We only connect you with brands that actually fit your project.'}
         </p>
       </div>
