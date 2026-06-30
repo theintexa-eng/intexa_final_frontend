@@ -43,10 +43,10 @@ export default function CampaignLanding({ angle = DEFAULT_ANGLE }) {
         image={HERO_IMAGE}
         bookingMode={bookingMode}
       />
-      <LandingProblem />
+      <LandingProblem bookingMode={bookingMode} />
       <LandingSolution bookingMode={bookingMode} />
       <LandingProcess bookingMode={bookingMode} />
-      <LandingProof />
+      <LandingProof bookingMode={bookingMode} />
       <LandingTrust />
       {bookingMode
         ? <BookingSection angle={angle} />

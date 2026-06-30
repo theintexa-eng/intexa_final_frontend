@@ -22,7 +22,11 @@ const problems = [
   }
 ];
 
-export default function LandingProblem() {
+export default function LandingProblem({ bookingMode } = {}) {
+  // Soften unsourced hard stats on the consultation LP for credibility (keeps the framing).
+  const problemsToUse = bookingMode
+    ? problems.map((p) => (p.stat === '60%' ? { ...p, stat: 'Most' } : (p.stat === '1 in 3' ? { ...p, stat: 'Many' } : p)))
+    : problems;
   return (
     <section className="py-16 lg:py-20 bg-[#F7F5F2]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +41,7 @@ export default function LandingProblem() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {problems.map((p, i) => (
+          {problemsToUse.map((p, i) => (
             <div key={i} className="bg-white rounded-xl p-7 border border-border">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">

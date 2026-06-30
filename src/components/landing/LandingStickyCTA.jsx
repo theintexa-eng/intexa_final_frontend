@@ -31,7 +31,7 @@ export default function LandingStickyCTA({ bookingMode } = {}) {
         data-cta={bookingMode ? 'book-consultation' : undefined}
         className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-12 rounded-lg font-semibold text-sm transition-colors"
       >
-        {bookingMode ? 'Book Free 30-Min Consultation →' : 'Get Matched with the Right Brands →'}
+        {bookingMode ? 'Book My Free Consultation →' : 'Get Matched with the Right Brands →'}
       </button>
       <p className="text-center text-xs text-muted-foreground mt-1.5">
         {bookingMode ? 'Free · 30 minutes · Google Meet' : 'Free to submit · Pay only after your match'}

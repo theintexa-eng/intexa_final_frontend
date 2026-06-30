@@ -21,10 +21,13 @@ export default function BookingSection({ angle = 'consultation' }) {
         <h2 className="font-display text-3xl sm:text-4xl font-semibold mb-4">
           Ready to Discuss Your Interior Project?
         </h2>
-        <p className="text-primary-foreground/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-6">
-          Book a free 30-minute consultation with an independent INTEXA advisor. Get a clear plan,
-          a realistic budget and the right brand match — independent guidance that can help you save
-          up to 10–15% through better planning and smarter decisions.
+        <p className="text-primary-foreground/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-3">
+          Book a free 30-minute call with an independent INTEXA advisor — get a clear plan, a
+          realistic budget, and 2–3 vetted brands matched to your project. Better planning can save
+          you 10–15% and a lot of costly mistakes.
+        </p>
+        <p className="text-accent text-sm font-medium mb-6">
+          Limited slots each week — booked one-on-one with a senior advisor.
         </p>
 
         {/* Trust row */}
@@ -40,7 +43,7 @@ export default function BookingSection({ angle = 'consultation' }) {
           data-cta="book-consultation"
           className="bg-accent text-accent-foreground hover:bg-accent/90 px-8 h-14 rounded-md font-semibold text-sm tracking-wide transition-colors"
         >
-          Book Free 30-Min Consultation →
+          Book My Free Consultation →
         </button>
       </div>
 

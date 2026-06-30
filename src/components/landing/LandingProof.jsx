@@ -42,7 +42,13 @@ function Stars({ count }) {
   );
 }
 
-export default function LandingProof() {
+export default function LandingProof({ bookingMode } = {}) {
+  // The consultation is now free on this LP — swap the testimonial line that references a "consultation fee".
+  const testimonialsToUse = bookingMode
+    ? testimonials.map((t) => (t.name === 'Priya Nair'
+        ? { ...t, quote: 'As first-time homeowners, we had no idea where to start. INTEXA structured everything — our requirements, our budget, and how to compare proposals. We finally felt in control of our project.' }
+        : t))
+    : testimonials;
   return (
     <section className="py-16 lg:py-20 bg-[#F7F5F2]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,7 +73,7 @@ export default function LandingProof() {
 
         {/* Testimonials */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => (
+          {testimonialsToUse.map((t, i) => (
             <div key={i} className="bg-white rounded-xl p-6 border border-border flex flex-col gap-4">
               <Quote className="w-6 h-6 text-accent/40" />
               <p className="text-sm text-foreground leading-relaxed flex-1">"{t.quote}"</p>
