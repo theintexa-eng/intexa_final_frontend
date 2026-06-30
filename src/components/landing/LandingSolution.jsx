@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldCheck, Users, Scale, ArrowRight } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 const pillars = [
   {
@@ -19,7 +20,21 @@ const pillars = [
   }
 ];
 
-export default function LandingSolution() {
+export default function LandingSolution({ bookingMode } = {}) {
+  const onCta = () => {
+    if (bookingMode) {
+      trackEvent('schedule_consultation', { loc: 'solution' });
+      document.getElementById('book-consultation')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    document.getElementById('get-matched-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
+  // In appointment-first mode, present independence as a value prop without commission framing.
+  const pillarsToUse = bookingMode
+    ? pillars.map((p, i) => (i === 2
+        ? { ...p, body: "INTEXA is not a studio and not a contractor — we're an independent advisor on your side. Our only incentive is to get your project right." }
+        : p))
+    : pillars;
   return (
     <section className="py-16 lg:py-20 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,7 +49,7 @@ export default function LandingSolution() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {pillars.map((p, i) => (
+          {pillarsToUse.map((p, i) => (
             <div key={i} className="group relative rounded-xl p-7 border border-border hover:border-accent/40 hover:shadow-md transition-all duration-300">
               <div className="w-11 h-11 rounded-lg bg-accent/10 flex items-center justify-center mb-5">
                 <p.icon className="w-5 h-5 text-accent" />
@@ -51,10 +66,11 @@ export default function LandingSolution() {
             INTEXA is not a marketplace. Not a directory. It's a guided advisory process.
           </p>
           <button
-            onClick={() => document.getElementById('get-matched-form')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={onCta}
+            data-cta={bookingMode ? 'book-consultation' : undefined}
             className="flex-shrink-0 inline-flex items-center gap-2 bg-accent text-accent-foreground hover:bg-accent/90 px-6 h-11 rounded-md font-semibold text-sm transition-colors"
           >
-            Start My Project <ArrowRight className="w-4 h-4" />
+            {bookingMode ? 'Book Free Consultation' : 'Start My Project'} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

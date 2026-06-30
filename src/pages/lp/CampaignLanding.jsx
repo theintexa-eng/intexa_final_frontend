@@ -15,12 +15,16 @@ import LandingProcess from '@/components/landing/LandingProcess';
 import LandingProof from '@/components/landing/LandingProof';
 import LandingTrust from '@/components/landing/LandingTrust';
 import LandingForm from '@/components/landing/LandingForm';
+import BookingSection from '@/components/landing/BookingSection';
 import FAQAccordion from '@/components/shared/FAQAccordion';
 import LandingFooter from '@/components/landing/LandingFooter';
 import LandingStickyCTA from '@/components/landing/LandingStickyCTA';
 
 export default function CampaignLanding({ angle = DEFAULT_ANGLE }) {
   const cfg = ANGLES[angle] || ANGLES[DEFAULT_ANGLE];
+  // Appointment-first mode (Google Appointment Scheduler) when the angle defines a bookingUrl.
+  const bookingMode = Boolean(cfg.bookingUrl);
+  const faqs = cfg.faqs || LP_FAQS;
 
   useUtm();
   useEffect(() => {
@@ -37,16 +41,19 @@ export default function CampaignLanding({ angle = DEFAULT_ANGLE }) {
         subtitle={cfg.subtitle}
         ctaLabel={cfg.ctaLabel}
         image={HERO_IMAGE}
+        bookingMode={bookingMode}
       />
       <LandingProblem />
-      <LandingSolution />
-      <LandingProcess />
+      <LandingSolution bookingMode={bookingMode} />
+      <LandingProcess bookingMode={bookingMode} />
       <LandingProof />
       <LandingTrust />
-      <LandingForm angle={angle} serviceInterest={cfg.serviceInterest} />
-      <FAQAccordion faqs={LP_FAQS} label="FAQ" title="Common questions" description="Quick answers before you book." />
+      {bookingMode
+        ? <BookingSection angle={angle} />
+        : <LandingForm angle={angle} serviceInterest={cfg.serviceInterest} />}
+      <FAQAccordion faqs={faqs} label="FAQ" title="Common questions" description={bookingMode ? 'Quick answers before you book your free consultation.' : 'Quick answers before you book.'} />
       <LandingFooter />
-      <LandingStickyCTA />
+      <LandingStickyCTA bookingMode={bookingMode} />
     </div>
   );
 }

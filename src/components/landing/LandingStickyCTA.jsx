@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { trackEvent } from '@/lib/analytics';
 
-export default function LandingStickyCTA() {
+export default function LandingStickyCTA({ bookingMode } = {}) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -12,7 +13,12 @@ export default function LandingStickyCTA() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const scrollToForm = () => {
+  const onCta = () => {
+    if (bookingMode) {
+      trackEvent('schedule_consultation', { loc: 'sticky' });
+      document.getElementById('book-consultation')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
     document.getElementById('get-matched-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -21,13 +27,14 @@ export default function LandingStickyCTA() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-border px-4 py-3 shadow-lg">
       <button
-        onClick={scrollToForm}
+        onClick={onCta}
+        data-cta={bookingMode ? 'book-consultation' : undefined}
         className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-12 rounded-lg font-semibold text-sm transition-colors"
       >
-        Get Matched with the Right Brands →
+        {bookingMode ? 'Book Free 30-Min Consultation →' : 'Get Matched with the Right Brands →'}
       </button>
       <p className="text-center text-xs text-muted-foreground mt-1.5">
-        Free to submit · Pay only after your match
+        {bookingMode ? 'Free · 30 minutes · Google Meet' : 'Free to submit · Pay only after your match'}
       </p>
     </div>
   );

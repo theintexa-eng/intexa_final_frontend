@@ -10,8 +10,13 @@ const DEFAULTS = {
   image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=70&w=1600&auto=format&fit=crop',
 };
 
-export default function LandingHero({ angle, eyebrow, title, subtitle, ctaLabel, image } = {}) {
-  const scrollToForm = () => {
+export default function LandingHero({ angle, eyebrow, title, subtitle, ctaLabel, image, bookingMode } = {}) {
+  const onCta = () => {
+    if (bookingMode) {
+      trackEvent('schedule_consultation', { loc: 'hero', angle });
+      document.getElementById('book-consultation')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
     trackEvent('cta_click', { loc: 'hero', angle });
     document.getElementById('get-matched-form')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -87,22 +92,27 @@ export default function LandingHero({ angle, eyebrow, title, subtitle, ctaLabel,
           className="flex flex-col sm:flex-row gap-3 justify-center"
         >
           <button
-            onClick={scrollToForm}
+            onClick={onCta}
+            data-cta={bookingMode ? 'book-consultation' : undefined}
             className="bg-accent text-accent-foreground hover:bg-accent/90 px-8 h-14 rounded-md font-semibold text-sm tracking-wide transition-colors"
           >
             {ctaLabel || DEFAULTS.ctaLabel}
           </button>
-          <a
-            href="tel:+919217919111"
-            className="border border-white/25 bg-transparent text-white hover:bg-white/10 px-8 h-14 rounded-md font-semibold text-sm tracking-wide transition-colors flex items-center justify-center"
-          >
-            Call Us: +91 9217 919 111
-          </a>
+          {!bookingMode && (
+            <a
+              href="tel:+919217919111"
+              className="border border-white/25 bg-transparent text-white hover:bg-white/10 px-8 h-14 rounded-md font-semibold text-sm tracking-wide transition-colors flex items-center justify-center"
+            >
+              Call Us: +91 9217 919 111
+            </a>
+          )}
         </motion.div>
 
         {/* Micro-copy */}
         <p className="text-white/35 text-xs mt-5">
-          No spam. No random vendor calls. We only connect you with brands that actually fit your project.
+          {bookingMode
+            ? 'Free 30-minute Google Meet · No obligation · Independent advice from an advisor who works only for you.'
+            : 'No spam. No random vendor calls. We only connect you with brands that actually fit your project.'}
         </p>
       </div>
     </section>
