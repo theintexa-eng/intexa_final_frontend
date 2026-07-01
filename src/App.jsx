@@ -25,6 +25,7 @@ import GetMatched from './pages/GetMatched';
 import Sitemap from './pages/Sitemap';
 import LandingLayout from './components/layout/LandingLayout';
 import CampaignLanding from './pages/lp/CampaignLanding';
+import ThankYou from './pages/lp/ThankYou';
 
 function App() {
   return (
@@ -58,6 +59,9 @@ function App() {
             <Route path="/lp/brand-match" element={<CampaignLanding angle="brand-match" />} />
             <Route path="/lp/plan" element={<CampaignLanding angle="plan" />} />
           </Route>
+          {/* Post-booking confirmation (self-contained: own header + analytics mount) */}
+          <Route path="/lp/thank-you" element={<ThankYou />} />
+          <Route path="/lp/thank-you/" element={<ThankYou />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Router>
