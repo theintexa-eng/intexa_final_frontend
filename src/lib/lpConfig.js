@@ -11,15 +11,15 @@ export const LP_PHONE_DISPLAY = '+91 9217 919 111';
 export const HERO_IMAGE = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=70&w=1600&auto=format&fit=crop';
 const OG_IMAGE = 'https://media.base44.com/images/public/user_69bf8f0482d83e3867d98bbb/580701ef2_FinalLogoTransparent_1.png';
 
-// Public Google Workspace Appointment Scheduler booking link (team@intexa.in).
-// Set VITE_BOOKING_URL in the build env, or replace the placeholder default once the
-// schedule is created. Used by the appointment-first consultation LP (all CTAs + embed).
-export const BOOKING_URL =
-  import.meta.env.VITE_BOOKING_URL || 'https://calendar.app.google/XLABQP2hbVoQtmfc9';
-// Full scheduling URL for the on-page iframe embed (Google requires the long URL + ?gv=true).
-export const BOOKING_EMBED_URL =
-  import.meta.env.VITE_BOOKING_EMBED_URL ||
-  'https://calendar.google.com/calendar/appointments/schedules/AcZssZ3ZQPLThx9a7L-PHa6DPjT3TokKvrYr55N8WIuJK5SzCJufadIrpDSd1yukBKMCAK6ZitVV5_l0?gv=true';
+// Calendly booking link (team@intexa.in · calendly.com/team-intexa).
+// Event: "Free 30-Min Interior Project Consultation" (30 min, Google Meet).
+// Override via VITE_CALENDLY_URL in the build env. Used by the appointment-first
+// consultation LP (all CTAs → inline embed / popup; UTMs appended at embed time).
+export const CALENDLY_URL =
+  import.meta.env.VITE_CALENDLY_URL ||
+  'https://calendly.com/team-intexa/free-30-min-interior-project-consultation';
+// Back-compat alias: existing config/components refer to BOOKING_URL.
+export const BOOKING_URL = CALENDLY_URL;
 
 // Appointment-first FAQs for /lp/consultation (no commission claims; consultation-led,
 // with carefully qualified savings language).

@@ -1,18 +1,79 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CalendarCheck, Clock, Video, ShieldCheck } from 'lucide-react';
-import { BOOKING_URL, BOOKING_EMBED_URL } from '@/lib/lpConfig';
+import { CALENDLY_URL } from '@/lib/lpConfig';
 import { trackEvent } from '@/lib/analytics';
+import { getUtm } from '@/hooks/useUtm';
+import {
+  loadCalendly,
+  buildCalendlyUrl,
+  isCalendlyMessage,
+  bookingIdFromPayload,
+  CALENDLY_EVENTS,
+} from '@/lib/calendly';
 
 /**
  * BookingSection — appointment-first bottom CTA for the consultation LP.
- * Renders the headline + value copy, an embedded Google Appointment Scheduler
- * (team@intexa.in), and a button fallback that opens the booking page in a new tab.
+ * Renders the value copy + an embedded Calendly widget (Free 30-Min Interior Project
+ * Consultation, team@intexa.in) and listens to the Calendly booking lifecycle to fire
+ * analytics and redirect to the branded /lp/thank-you page on a confirmed booking.
  * id="book-consultation" is the scroll target every CTA on the page points to.
  */
 export default function BookingSection({ angle = 'consultation' }) {
-  const openBooking = (loc) => {
-    trackEvent('schedule_consultation', { angle, loc, method: 'new_tab' });
-    window.open(BOOKING_URL, '_blank', 'noopener,noreferrer');
+  const navigate = useNavigate();
+  const widgetRef = useRef(null);
+  const startedRef = useRef(false);
+  const doneRef = useRef(false);
+  // Build the embed URL once (with captured UTMs) so it stays stable across renders.
+  const [embedUrl] = useState(() => buildCalendlyUrl(CALENDLY_URL));
+
+  // Load the widget assets and mount the inline embed.
+  useEffect(() => {
+    let cancelled = false;
+    loadCalendly().then(() => {
+      if (cancelled || !window.Calendly || !widgetRef.current) return;
+      widgetRef.current.innerHTML = '';
+      window.Calendly.initInlineWidget({ url: embedUrl, parentElement: widgetRef.current });
+    });
+    return () => { cancelled = true; };
+  }, [embedUrl]);
+
+  // Booking lifecycle → analytics + redirect. Guards prevent duplicate events.
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (typeof e.origin !== 'string' || e.origin.indexOf('calendly.com') === -1) return;
+      if (!isCalendlyMessage(e)) return;
+      const { event, payload } = e.data;
+
+      if (event === CALENDLY_EVENTS.slotSelected && !startedRef.current) {
+        startedRef.current = true;
+        trackEvent('booking_started', { angle, provider: 'calendly' });
+      }
+
+      if (event === CALENDLY_EVENTS.scheduled && !doneRef.current) {
+        doneRef.current = true;
+        const id = bookingIdFromPayload(payload);
+        try {
+          sessionStorage.setItem(
+            'intexa_booking',
+            JSON.stringify({ id, ts: Date.now(), angle, utm: getUtm() }),
+          );
+        } catch { /* ignore storage errors */ }
+        trackEvent('booking_completed', { angle, provider: 'calendly', event_id: id });
+        trackEvent('calendly_redirect', { angle, event_id: id });
+        // Let the dataLayer flush, then hand off to the branded thank-you page.
+        setTimeout(() => navigate('/lp/thank-you'), 350);
+      }
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [angle, navigate]);
+
+  // CTA / fallback → open the Calendly popup (same UTM-tagged URL).
+  const openPopup = (loc) => {
+    trackEvent('schedule_consultation', { angle, loc, method: 'popup' });
+    if (window.Calendly) window.Calendly.initPopupWidget({ url: embedUrl });
+    else window.open(embedUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -39,7 +100,7 @@ export default function BookingSection({ angle = 'consultation' }) {
         </div>
 
         <button
-          onClick={() => openBooking('booking_section_button')}
+          onClick={() => openPopup('booking_section_button')}
           data-cta="book-consultation"
           className="bg-accent text-accent-foreground hover:bg-accent/90 px-8 h-14 rounded-md font-semibold text-sm tracking-wide transition-colors"
         >
@@ -47,19 +108,18 @@ export default function BookingSection({ angle = 'consultation' }) {
         </button>
       </div>
 
-      {/* Embedded scheduler */}
+      {/* Embedded Calendly scheduler */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-10">
         <div className="bg-white rounded-lg overflow-hidden shadow-xl">
-          <iframe
-            src={BOOKING_EMBED_URL}
-            title="Book a free 30-minute interior consultation with INTEXA"
-            className="w-full h-[640px] border-0"
-            loading="lazy"
+          <div
+            ref={widgetRef}
+            style={{ minWidth: 320, height: 700 }}
+            aria-label="Book a free 30-minute interior consultation with INTEXA"
           />
         </div>
         <p className="text-center text-primary-foreground/50 text-xs mt-4">
           Trouble loading the calendar?{' '}
-          <button onClick={() => openBooking('booking_section_fallback')} className="underline hover:text-primary-foreground">
+          <button onClick={() => openPopup('booking_section_fallback')} className="underline hover:text-primary-foreground">
             Open the booking page →
           </button>
         </p>
